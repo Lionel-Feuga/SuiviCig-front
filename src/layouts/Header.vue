@@ -4,12 +4,10 @@ import { gsap } from "gsap";
 
 const isMenuOpen = ref(false);
 
-// Fonction pour gérer l'ouverture et la fermeture du menu avec animation
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
 
-// Animation d'apparition
 const openMenuAnimation = () => {
   gsap.fromTo(
     ".menu",
@@ -18,7 +16,6 @@ const openMenuAnimation = () => {
   );
 };
 
-// Animation de disparition
 const closeMenuAnimation = () => {
   gsap.to(".menu", {
     y: "-100%",
@@ -29,7 +26,6 @@ const closeMenuAnimation = () => {
   });
 };
 
-// Surveiller les changements d'état du menu
 watch(isMenuOpen, (newVal) => {
   if (newVal) {
     openMenuAnimation();
@@ -41,19 +37,15 @@ watch(isMenuOpen, (newVal) => {
 
 <template>
   <header class="top-nav">
-    <!-- Menu Toggle (Burger Button) -->
     <input id="menu-toggle" type="checkbox" v-model="isMenuOpen" />
     <label class="menu-button-container" for="menu-toggle">
       <div class="menu-button"></div>
     </label>
 
-    <!-- Menu -->
     <ul class="menu">
-      <li><a href="#home">Accueil</a></li>
-      <li><a href="#about">À propos</a></li>
-      <li><a href="#skills">Compétences</a></li>
-      <li><a href="#portfolio">Portfolio</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="/Home">Accueil</a></li>
+      <li><a href="/Goals">Ajouter un objectif</a></li>
+      <li><a href="/AllGoals">Tous les objectifs</a></li>
     </ul>
   </header>
 </template>

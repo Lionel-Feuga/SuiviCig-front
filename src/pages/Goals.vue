@@ -19,11 +19,14 @@ const handleDateSelection = (newDates) => {
       selectedDates.value = updatedDates;
     }
   }
+
+  // Tri des dates pour assurer que la plus ancienne soit la première
+  selectedDates.value = [...selectedDates.value].sort((a, b) => new Date(a) - new Date(b));
 };
 
 const range = computed(() => {
   if (selectedDates.value.length >= 2) {
-    const sortedDates = [...selectedDates.value].sort();
+    const sortedDates = [...selectedDates.value].sort((a, b) => new Date(a) - new Date(b));
     return { start: sortedDates[0], end: sortedDates[1] };
   }
   return { start: null, end: null };
@@ -35,19 +38,23 @@ const saveRange = async () => {
     return;
   }
 
+  // Ajouter un jour à la endDate pour inclure le dernier jour sélectionné
+  const endDateAdjusted = new Date(range.value.end);
+  endDateAdjusted.setDate(endDateAdjusted.getDate() + 1);
+
   const data = {
     startDate: range.value.start,
-    endDate: range.value.end,
+    endDate: endDateAdjusted.toISOString().split('T')[0], // Format YYYY-MM-DD
     maxCigarettesPerDay: maxCigarettes.value,
   };
 
   try {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     const response = await fetch('http://localhost:3000/api/goals', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`, 
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -65,6 +72,7 @@ const saveRange = async () => {
     alert('Erreur réseau. Veuillez réessayer.');
   }
 };
+
 </script>
 
 <template>

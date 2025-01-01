@@ -1,0 +1,170 @@
+/* Style global du calendrier */
+.fc {
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+/* Style des jours */
+.fc-daygrid-day {
+  background-color: #222;
+  border: 1px solid #333;
+}
+
+/* Style des numéros de jour */
+.fc-daygrid-day-number {
+  color: white;
+  font-weight: bold;
+}
+
+/* Style des en-têtes (jours de la semaine) */
+.fc-col-header-cell {
+  background-color: #005f99;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Style des événements */
+.fc-event {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  line-height: 1.2;
+  padding: 5px;
+}
+
+/* Couleurs dynamiques pour les objectifs */
+.goal-color-0 {
+  background-color: #17b9f9; /* Bleu clair */
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.goal-color-1 {
+  background-color: #005f99; /* Bleu foncé */
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.goal-color-2 {
+  background-color: #1fa67a; /* Vert */
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.goal-color-3 {
+  background-color: #f49f05; /* Orange */
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.goal-color-4 {
+  background-color: #f45d4c; /* Rouge */
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* Style de la barre d'outils */
+.fc-toolbar {
+  color: white;
+  padding: 5px 10px;
+}
+
+.fc-toolbar-title {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+/* Centrer les flèches dans les boutons */
+.fc-prev-button,
+.fc-next-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Style des boutons */
+.fc-button {
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  vertical-align: baseline;
+}
+
+.fc-button:hover {
+  background-color: #555;
+}
+
+.fc .fc-button .fc-icon {
+  padding-top: 5px;
+  vertical-align: baseline;
+}
+
+/* Ajuster la hauteur des cellules sur les petits écrans */
+.fc-daygrid-day-frame {
+  height: auto;
+}
+
+
+
+@media (max-width: 768px) {
+  .fc-daygrid-day-frame {
+    height: 4rem; /* Réduction de la hauteur */
+  }
+
+  .fc-event {
+    font-size: 0.8rem; /* Réduction de la taille du texte */
+    line-height: 1.2;
+  }
+
+  .fc .fc-button-primary:disabled {
+    margin-left: 12px;
+    margin-bottom: 5px;
+  }
+
+  .fc-toolbar-chunk{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+/* Masquer le texte des barres des objectifs */
+.fc-event.no-text {
+    color: transparent; /* Le texte est invisible */
+  }
+  
+  /* Bulle d'information pour les objectifs */
+  .tooltip {
+    position: absolute;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    z-index: 1000;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-50%, -100%);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+.fc-h-event .fc-event-main {
+  display: none;
+}
+
+.fc-event.no-text {
+  height: 20px;
+}
+
+.fc-event.no-text:hover {
+  cursor: pointer;
+}

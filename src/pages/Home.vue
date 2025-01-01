@@ -14,7 +14,6 @@ import ShowGoals from '@/components/ShowGoals.vue';
     <v-col class="d-md-flex" cols="12" md="6" lg="3">
       <ShowGoals />   
     </v-col>
-    <v-col class="d-md-flex" cols="12" md="6" lg="3"> </v-col>
   </v-row>
 </template>
 
