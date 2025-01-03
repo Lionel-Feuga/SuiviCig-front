@@ -13,12 +13,15 @@ const fetchGoals = async () => {
       return;
     }
 
-    const response = await fetch("http://localhost:3000/api/goals", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/goals`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (response.ok) {
       const allGoals = await response.json();

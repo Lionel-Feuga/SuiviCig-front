@@ -44,16 +44,19 @@ const logout = async () => {
       return;
     }
 
-    const response = await fetch("http://localhost:3000/api/auth/logout", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (response.ok) {
-      localStorage.removeItem("token"); 
-      window.location.href = "/"; 
+      localStorage.removeItem("token");
+      window.location.href = "/";
     } else {
       alert("Erreur lors de la déconnexion.");
     }
@@ -62,7 +65,6 @@ const logout = async () => {
     alert("Erreur réseau. Veuillez réessayer.");
   }
 };
-
 </script>
 
 <template>

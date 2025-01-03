@@ -1,13 +1,13 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-const username = ref('');
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
-const error = ref('');
-const success = ref('');
+const username = ref("");
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const error = ref("");
+const success = ref("");
 const router = useRouter();
 
 const handleRegister = async () => {
@@ -17,23 +17,27 @@ const handleRegister = async () => {
   }
 
   try {
-    const response = await fetch('http://localhost:3000/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username.value,
-        email: email.value,
-        password: password.value,
-      }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/auth/register`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username.value,
+          email: email.value,
+          password: password.value,
+        }),
+      }
+    );
 
     if (response.ok) {
-      success.value = "Inscription réussie ! Vous allez être redirigé vers la page de connexion.";
-      error.value = '';
+      success.value =
+        "Inscription réussie ! Vous allez être redirigé vers la page de connexion.";
+      error.value = "";
       setTimeout(() => {
-        router.push('/');
+        router.push("/");
       }, 2000);
     } else {
       const errorResponse = await response.json();
@@ -76,25 +80,15 @@ const handleRegister = async () => {
                 type="password"
                 required
               />
-              <v-btn block color="primary" type="submit">
-                S'inscrire
-              </v-btn>
-              <Router-link to="/" class="custom-link d-flex justify-end mt-2">Déjà inscrit ? Connectez-vous</Router-link>
+              <v-btn block color="primary" type="submit"> S'inscrire </v-btn>
+              <Router-link to="/" class="custom-link d-flex justify-end mt-2"
+                >Déjà inscrit ? Connectez-vous</Router-link
+              >
             </v-form>
-            <v-alert
-              v-if="error"
-              type="error"
-              dismissible
-              class="mt-4"
-            >
+            <v-alert v-if="error" type="error" dismissible class="mt-4">
               {{ error }}
             </v-alert>
-            <v-alert
-              v-if="success"
-              type="success"
-              dismissible
-              class="mt-4"
-            >
+            <v-alert v-if="success" type="success" dismissible class="mt-4">
               {{ success }}
             </v-alert>
           </v-card-text>

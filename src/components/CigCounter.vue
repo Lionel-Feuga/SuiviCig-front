@@ -10,7 +10,7 @@ const initializeCounter = async () => {
     const today = new Date().toISOString().split("T")[0];
 
     const response = await fetch(
-      `http://localhost:3000/api/daily-records?date=${today}`,
+      `${import.meta.env.VITE_API_BASE_URL}/api/daily-records?date=${today}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -34,17 +34,20 @@ const increment = async () => {
     count.value += 1;
 
     const today = new Date().toISOString().split("T")[0];
-    const response = await fetch("http://localhost:3000/api/daily-records", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        date: today,
-        cigarettesSmoked: count.value,
-      }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/daily-records`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          date: today,
+          cigarettesSmoked: count.value,
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Erreur lors de l'enregistrement.");
@@ -60,17 +63,20 @@ const decrement = async () => {
       count.value -= 1;
 
       const today = new Date().toISOString().split("T")[0];
-      const response = await fetch("http://localhost:3000/api/daily-records", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          date: today,
-          cigarettesSmoked: count.value,
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/daily-records`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            date: today,
+            cigarettesSmoked: count.value,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Erreur lors de l'enregistrement.");
