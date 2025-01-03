@@ -1,30 +1,121 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from "vue";
 
-const count = ref(5);
+const count = ref(0);
 
-const increment = () => {
-  count.value += 1;
-};
+const token = localStorage.getItem("token");
 
-const decrement = () => {
-  if (count.value > 0) {
-    count.value -= 1;
+const initializeCounter = async () => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+
+    const response = await fetch(
+      `http://localhost:3000/api/daily-records?date=${today}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      const record = await response.json();
+      count.value = record?.cigarettesSmoked || 0;
+    } else {
+      throw new Error("Erreur lors de la récupération du compteur.");
+    }
+  } catch (error) {
+    console.error("Erreur :", error.message);
   }
 };
+
+const increment = async () => {
+  try {
+    count.value += 1;
+
+    const today = new Date().toISOString().split("T")[0];
+    const response = await fetch("http://localhost:3000/api/daily-records", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        date: today,
+        cigarettesSmoked: count.value,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors de l'enregistrement.");
+    }
+  } catch (error) {
+    console.error("Erreur :", error.message);
+  }
+};
+
+const decrement = async () => {
+  if (count.value > 0) {
+    try {
+      count.value -= 1;
+
+      const today = new Date().toISOString().split("T")[0];
+      const response = await fetch("http://localhost:3000/api/daily-records", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          date: today,
+          cigarettesSmoked: count.value,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'enregistrement.");
+      }
+    } catch (error) {
+      console.error("Erreur :", error.message);
+    }
+  }
+};
+
+onMounted(() => {
+  initializeCounter();
+});
 </script>
 
 <template>
-  <v-container class="d-flex align-center justify-center" style="height: 100vh; width: 100vw">
+  <v-container
+    class="d-flex align-center justify-center"
+    style="height: 100vh; width: 100vw"
+  >
     <v-row class="justify-center">
-      <v-col cols="12" sm="8" md="6" class="d-flex flex-column align-center" style="max-width: 20rem;">
+      <v-col
+        cols="12"
+        sm="8"
+        md="6"
+        class="d-flex flex-column align-center"
+        style="max-width: 20rem"
+      >
         <h1 class="count-title">Compteur</h1>
         <div class="circle d-flex justify-center align-center mt-5">
           {{ count }}
         </div>
         <div class="btns d-flex justify-space-between mt-6 w-100">
-          <v-btn class="btn-moins" @click="decrement" aria-label="Décémenter le compteur">-</v-btn>
-          <v-btn class="btn-plus" @click="increment" aria-label="Incrémenter le compteur">+</v-btn>
+          <v-btn
+            class="btn-moins"
+            @click="decrement"
+            aria-label="Décrémenter le compteur"
+            >-</v-btn
+          >
+          <v-btn
+            class="btn-plus"
+            @click="increment"
+            aria-label="Incrémenter le compteur"
+            >+</v-btn
+          >
         </div>
       </v-col>
     </v-row>

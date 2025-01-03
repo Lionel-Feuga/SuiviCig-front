@@ -4,15 +4,17 @@ import { gsap } from "gsap";
 
 const isMenuOpen = ref(false);
 
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value;
-};
-
 const openMenuAnimation = () => {
   gsap.fromTo(
     ".menu",
     { y: "-100%", opacity: 0, pointerEvents: "none" },
-    { y: "0%", opacity: 1, pointerEvents: "auto", duration: 0.5, ease: "power2.out" }
+    {
+      y: "0%",
+      opacity: 1,
+      pointerEvents: "auto",
+      duration: 0.5,
+      ease: "power2.out",
+    }
   );
 };
 
@@ -33,6 +35,34 @@ watch(isMenuOpen, (newVal) => {
     closeMenuAnimation();
   }
 });
+
+const logout = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Vous êtes déjà déconnecté.");
+      return;
+    }
+
+    const response = await fetch("http://localhost:3000/api/auth/logout", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      localStorage.removeItem("token"); 
+      window.location.href = "/"; 
+    } else {
+      alert("Erreur lors de la déconnexion.");
+    }
+  } catch (err) {
+    console.error("Erreur réseau :", err);
+    alert("Erreur réseau. Veuillez réessayer.");
+  }
+};
+
 </script>
 
 <template>
@@ -46,12 +76,12 @@ watch(isMenuOpen, (newVal) => {
       <li><a href="/Home">Accueil</a></li>
       <li><a href="/Goals">Ajouter un objectif</a></li>
       <li><a href="/AllGoals">Tous les objectifs</a></li>
+      <li><a href="/" @click.prevent="logout">Déconnexion</a></li>
     </ul>
   </header>
 </template>
 
 <style scoped>
-/* Header Styles */
 .top-nav {
   display: flex;
   justify-content: flex-end;
@@ -63,10 +93,9 @@ watch(isMenuOpen, (newVal) => {
   left: 0;
   width: 100%;
   z-index: 1000;
-  background-color: transparent; /* Pas de fond */
+  background-color: transparent;
 }
 
-/* Menu */
 .menu {
   position: fixed;
   top: 0;
@@ -78,12 +107,12 @@ watch(isMenuOpen, (newVal) => {
   justify-content: center;
   align-items: center;
   list-style-type: none;
-  background-color: rgba(0, 0, 0, 0.8); /* Fond légèrement transparent */
+  background-color: rgba(0, 0, 0, 0.8);
   padding: 0;
   margin: 0;
   z-index: 999;
-  opacity: 0; /* Initialement caché */
-  pointer-events: none; /* Désactiver les interactions */
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.5s ease, pointer-events 0.5s ease;
 }
 
@@ -101,7 +130,6 @@ watch(isMenuOpen, (newVal) => {
   color: #f0a500;
 }
 
-/* Burger Menu Styles */
 .menu-button-container {
   display: flex;
   height: 40px;
@@ -110,7 +138,7 @@ watch(isMenuOpen, (newVal) => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 1001; /* Bouton au-dessus du menu */
+  z-index: 1001;
 }
 
 #menu-toggle {
@@ -121,7 +149,7 @@ watch(isMenuOpen, (newVal) => {
 .menu-button::before,
 .menu-button::after {
   display: block;
-  background-color: white; /* Les barres sont blanches */
+  background-color: white;
   position: absolute;
   height: 4px;
   width: 30px;
