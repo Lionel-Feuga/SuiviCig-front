@@ -16,6 +16,12 @@ const handleRegister = async () => {
     return;
   }
 
+  console.log("Données envoyées au backend :", {
+    username: username.value,
+    email: email.value,
+    password: password.value,
+  });
+
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/auth/register`,
@@ -32,21 +38,32 @@ const handleRegister = async () => {
       }
     );
 
+    console.log("Réponse brute du backend :", response);
+
     if (response.ok) {
+      const data = await response.json();
+      console.log("Réponse JSON du backend :", data);
+
       success.value =
         "Inscription réussie ! Vous allez être redirigé vers la page de connexion.";
       error.value = "";
+
       setTimeout(() => {
         router.push("/");
       }, 2000);
     } else {
       const errorResponse = await response.json();
+      console.error("Erreur retournée par le backend :", errorResponse);
+
       error.value = errorResponse.error || "Une erreur est survenue.";
     }
   } catch (err) {
+    console.error("Erreur lors de la requête fetch :", err);
+
     error.value = "Impossible de créer un compte. Veuillez réessayer.";
   }
 };
+
 </script>
 
 <template>
