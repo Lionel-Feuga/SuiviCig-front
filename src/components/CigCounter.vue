@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 const count = ref(0);
-
+const unsavedChanges = ref(false); 
 const token = localStorage.getItem("token");
+let saveTimeout = null;
 
 const initializeCounter = async () => {
   try {
@@ -21,6 +22,10 @@ const initializeCounter = async () => {
     if (response.ok) {
       const record = await response.json();
       count.value = record?.cigarettesSmoked || 0;
+      console.log("Compteur initial chargé :", count.value);
+    } else if (response.status === 404) {
+      count.value = 0;
+      console.log("Aucune donnée trouvée pour aujourd'hui, compteur initialisé à zéro.");
     } else {
       throw new Error("Erreur lors de la récupération du compteur.");
     }
@@ -29,10 +34,8 @@ const initializeCounter = async () => {
   }
 };
 
-const increment = async () => {
+const saveCounterToBackend = async () => {
   try {
-    count.value += 1;
-
     const today = new Date().toISOString().split("T")[0];
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/daily-records`,
@@ -52,43 +55,43 @@ const increment = async () => {
     if (!response.ok) {
       throw new Error("Erreur lors de l'enregistrement.");
     }
+    unsavedChanges.value = false; 
+    console.log("Compteur sauvegardé :", count.value);
   } catch (error) {
-    console.error("Erreur :", error.message);
+    console.error("Erreur lors de l'enregistrement des données :", error.message);
   }
 };
 
-const decrement = async () => {
+const increment = () => {
+  count.value += 1;
+  unsavedChanges.value = true;
+  triggerSave(); 
+};
+
+const decrement = () => {
   if (count.value > 0) {
-    try {
-      count.value -= 1;
-
-      const today = new Date().toISOString().split("T")[0];
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/daily-records`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            date: today,
-            cigarettesSmoked: count.value,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'enregistrement.");
-      }
-    } catch (error) {
-      console.error("Erreur :", error.message);
-    }
+    count.value -= 1;
+    unsavedChanges.value = true;
+    triggerSave(); 
   }
+};
+
+const triggerSave = () => {
+  if (saveTimeout) clearTimeout(saveTimeout);
+
+  saveTimeout = setTimeout(() => {
+    if (unsavedChanges.value) saveCounterToBackend();
+  }, 10000);
 };
 
 onMounted(() => {
   initializeCounter();
+  window.addEventListener("beforeunload", saveCounterToBackend);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("beforeunload", saveCounterToBackend);
+  if (unsavedChanges.value) saveCounterToBackend();
 });
 </script>
 
