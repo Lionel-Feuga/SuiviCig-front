@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 
 const email = ref("");
 const password = ref("");
+const showPassword = ref(false);
 const error = ref("");
 const router = useRouter();
 
@@ -51,14 +52,17 @@ const handleLogin = async () => {
               />
               <v-text-field
                 v-model="password"
+                :type="showPassword ? 'text' : 'password'"
                 label="Mot de passe"
-                type="password"
                 required
+                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                @click:append-inner="() => (showPassword = !showPassword)"
+                class="password-field"
               />
               <v-btn block color="primary" type="submit"> Se connecter </v-btn>
               <Router-link
                 to="/Register"
-                class="custom-link d-flex justify-end mt-2"
+                class="custom-link d-flex justify-end mt-5 mt-md-2"
                 >Pas encore inscris ? Inscrivez-vous</Router-link
               >
             </v-form>
@@ -79,4 +83,5 @@ const handleLogin = async () => {
 .custom-link:hover {
   text-decoration: underline;
 }
+
 </style>
