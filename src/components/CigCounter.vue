@@ -1,10 +1,8 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted } from "vue";
 
 const count = ref(0);
-const unsavedChanges = ref(false); 
 const token = localStorage.getItem("token");
-let saveTimeout = null;
 
 const initializeCounter = async () => {
   try {
@@ -22,21 +20,22 @@ const initializeCounter = async () => {
     if (response.ok) {
       const record = await response.json();
       count.value = record?.cigarettesSmoked || 0;
-      console.log("Compteur initial chargé :", count.value);
+      console.log(`Compteur initialisé à : ${count.value}`);
     } else if (response.status === 404) {
       count.value = 0;
-      console.log("Aucune donnée trouvée pour aujourd'hui, compteur initialisé à zéro.");
+      console.log("Aucun enregistrement trouvé pour aujourd'hui. Initialisation à zéro.");
     } else {
-      throw new Error("Erreur lors de la récupération du compteur.");
+      throw new Error("Erreur lors de la récupération des données du compteur.");
     }
   } catch (error) {
-    console.error("Erreur :", error.message);
+    console.error("Erreur lors de l'initialisation du compteur :", error.message);
   }
 };
 
-const saveCounterToBackend = async () => {
+const updateDatabase = async (cigarettesSmoked) => {
   try {
     const today = new Date().toISOString().split("T")[0];
+
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/daily-records`,
       {
@@ -47,51 +46,34 @@ const saveCounterToBackend = async () => {
         },
         body: JSON.stringify({
           date: today,
-          cigarettesSmoked: count.value,
+          cigarettesSmoked,
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error("Erreur lors de l'enregistrement.");
+      throw new Error("Erreur lors de la mise à jour de la base de données.");
     }
-    unsavedChanges.value = false; 
-    console.log("Compteur sauvegardé :", count.value);
+    console.log(`Base de données mise à jour : ${cigarettesSmoked} cigarettes fumées.`);
   } catch (error) {
-    console.error("Erreur lors de l'enregistrement des données :", error.message);
+    console.error("Erreur lors de la mise à jour de la base de données :", error.message);
   }
 };
 
-const increment = () => {
+const increment = async () => {
   count.value += 1;
-  unsavedChanges.value = true;
-  triggerSave(); 
+  await updateDatabase(count.value);
 };
 
-const decrement = () => {
+const decrement = async () => {
   if (count.value > 0) {
     count.value -= 1;
-    unsavedChanges.value = true;
-    triggerSave(); 
+    await updateDatabase(count.value);
   }
-};
-
-const triggerSave = () => {
-  if (saveTimeout) clearTimeout(saveTimeout);
-
-  saveTimeout = setTimeout(() => {
-    if (unsavedChanges.value) saveCounterToBackend();
-  }, 10000);
 };
 
 onMounted(() => {
   initializeCounter();
-  window.addEventListener("beforeunload", saveCounterToBackend);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("beforeunload", saveCounterToBackend);
-  if (unsavedChanges.value) saveCounterToBackend();
 });
 </script>
 
