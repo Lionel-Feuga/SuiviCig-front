@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 
 const count = ref(0);
+const goal = ref(10); // Remplace 10 par la valeur de l'objectif dynamique si disponible
 const token = localStorage.getItem("token");
 
 const initializeCounter = async () => {
@@ -20,10 +21,8 @@ const initializeCounter = async () => {
     if (response.ok) {
       const record = await response.json();
       count.value = record?.cigarettesSmoked || 0;
-      console.log(`Compteur initialisé à : ${count.value}`);
     } else if (response.status === 404) {
       count.value = 0;
-      console.log("Aucun enregistrement trouvé pour aujourd'hui. Initialisation à zéro.");
     } else {
       throw new Error("Erreur lors de la récupération des données du compteur.");
     }
@@ -54,7 +53,6 @@ const updateDatabase = async (cigarettesSmoked) => {
     if (!response.ok) {
       throw new Error("Erreur lors de la mise à jour de la base de données.");
     }
-    console.log(`Base de données mise à jour : ${cigarettesSmoked} cigarettes fumées.`);
   } catch (error) {
     console.error("Erreur lors de la mise à jour de la base de données :", error.message);
   }
@@ -71,6 +69,11 @@ const decrement = async () => {
     await updateDatabase(count.value);
   }
 };
+
+const circleProgress = computed(() => {
+  const percentage = Math.min(count.value / goal.value, 1) * 100;
+  return 440 - (440 * percentage) / 100; // 440 est le périmètre du cercle
+});
 
 onMounted(() => {
   initializeCounter();
@@ -91,8 +94,33 @@ onMounted(() => {
         style="max-width: 20rem"
       >
         <h1 class="count-title">Compteur</h1>
-        <div class="circle d-flex justify-center align-center mt-5">
-          {{ count }}
+        <div class="circle-container">
+          <svg
+            class="progress-circle"
+            width="200"
+            height="200"
+            viewBox="0 0 100 100"
+          >
+            <circle
+              class="progress-circle-bg"
+              cx="50"
+              cy="50"
+              r="44"
+              fill="none"
+              stroke-width="4"
+            />
+            <circle
+              class="progress-circle-fill"
+              cx="50"
+              cy="50"
+              r="44"
+              fill="none"
+              stroke-width="4"
+              stroke-dasharray="440"
+              :stroke-dashoffset="circleProgress"
+            />
+          </svg>
+          <div class="circle-value">{{ count }}</div>
         </div>
         <div class="btns d-flex justify-space-between mt-6 w-100">
           <v-btn
@@ -120,16 +148,34 @@ onMounted(() => {
   text-align: center;
 }
 
-.circle {
-  height: 18.5rem;
-  width: 18.5rem;
-  border: 4px solid;
-  border-radius: 50%;
-  font-size: 9rem;
-  font-weight: 900;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.circle-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.progress-circle {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.progress-circle-bg {
+  stroke: #e0e0e0;
+}
+
+.progress-circle-fill {
+  stroke: blue;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.circle-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: bold;
 }
 
 .btns {

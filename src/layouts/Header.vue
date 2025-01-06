@@ -109,7 +109,7 @@ const logout = async () => {
   justify-content: center;
   align-items: center;
   list-style-type: none;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.9);
   padding: 0;
   margin: 0;
   z-index: 999;
