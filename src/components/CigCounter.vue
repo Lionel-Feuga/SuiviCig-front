@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 
 const count = ref(0);
-const goal = ref(null); 
+const goal = ref(null);
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 55;
 const token = localStorage.getItem("token");
 
@@ -41,12 +41,13 @@ const initializeCounter = async () => {
 
     if (goalResponse.ok) {
       const goals = await goalResponse.json();
-      goal.value = goals.find((g) => {
-        const startDate = new Date(g.startDate);
-        const endDate = new Date(g.endDate);
-        const currentDate = new Date(today);
-        return currentDate >= startDate && currentDate <= endDate;
-      })?.maxCigarettesPerDay || null;
+      goal.value =
+        goals.find((g) => {
+          const startDate = new Date(g.startDate);
+          const endDate = new Date(g.endDate);
+          const currentDate = new Date(today);
+          return currentDate >= startDate && currentDate <= endDate;
+        })?.maxCigarettesPerDay || null;
     }
   } catch (error) {
     console.error(
@@ -100,10 +101,19 @@ const decrement = async () => {
 
 const circleProgress = computed(() => {
   if (goal.value === null || goal.value <= 0) {
-    return CIRCLE_CIRCUMFERENCE; 
+    return CIRCLE_CIRCUMFERENCE;
   }
   const percentage = Math.min(count.value / goal.value, 1) * 100;
   return CIRCLE_CIRCUMFERENCE * (1 - percentage / 100);
+});
+
+const overCircleProgress = computed(() => {
+  if (count.value <= goal.value || goal.value === null || goal.value <= 0) {
+    return CIRCLE_CIRCUMFERENCE;
+  }
+  const extraPercentage =
+    Math.min((count.value - goal.value) / goal.value, 1) * 100;
+  return CIRCLE_CIRCUMFERENCE * (1 - extraPercentage / 100);
 });
 
 onMounted(() => {
@@ -150,6 +160,16 @@ onMounted(() => {
               :stroke-dasharray="CIRCLE_CIRCUMFERENCE"
               :stroke-dashoffset="circleProgress"
             />
+            <circle
+              class="progress-circle-over"
+              cx="62.5"
+              cy="62.5"
+              r="55"
+              fill="none"
+              stroke-width="4"
+              :stroke-dasharray="CIRCLE_CIRCUMFERENCE"
+              :stroke-dashoffset="overCircleProgress"
+            />
           </svg>
           <div class="circle-value">{{ count }}</div>
         </div>
@@ -188,6 +208,12 @@ onMounted(() => {
 .progress-circle {
   transform: rotate(-90deg);
   transform-origin: center;
+}
+
+.progress-circle-over {
+  stroke: red;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
 }
 
 .progress-circle-bg {
