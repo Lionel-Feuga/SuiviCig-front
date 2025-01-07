@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
 const goals = ref([]);
 const error = ref("");
@@ -58,6 +58,15 @@ const formatDate = (dateString) => {
     .join(" ");
 };
 
+const goalTitle = computed(() => {
+  if (!currentGoal.value) return "Aucun Objectif";
+
+  const now = new Date();
+  const startDate = new Date(currentGoal.value.startDate);
+
+  return startDate > now ? "Prochain Objectif" : "Objectif Actuel";
+});
+
 onMounted(() => {
   fetchGoals();
 });
@@ -70,7 +79,7 @@ onMounted(() => {
   >
     <v-row class="justify-center">
       <v-col cols="12" sm="8" md="6" class="d-flex flex-column align-center">
-        <h1 class="goal-title">Objectif Actuel</h1>
+        <h1 class="goal-title">{{ goalTitle }}</h1>
         <v-alert v-if="error" type="error" class="mt-5">
           {{ error }}
         </v-alert>

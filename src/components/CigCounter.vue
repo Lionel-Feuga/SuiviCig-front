@@ -1,14 +1,16 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
 const count = ref(0);
-const goal = ref(10); // Remplace 10 par la valeur de l'objectif dynamique si disponible
+const goal = ref(null); // Null si aucun objectif n'est défini
+const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 55;
 const token = localStorage.getItem("token");
 
 const initializeCounter = async () => {
   try {
     const today = new Date().toISOString().split("T")[0];
 
+    // Récupérer les données du compteur pour aujourd'hui
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/daily-records?date=${today}`,
       {
@@ -24,10 +26,35 @@ const initializeCounter = async () => {
     } else if (response.status === 404) {
       count.value = 0;
     } else {
-      throw new Error("Erreur lors de la récupération des données du compteur.");
+      throw new Error(
+        "Erreur lors de la récupération des données du compteur."
+      );
+    }
+
+    // Récupérer l'objectif pour aujourd'hui
+    const goalResponse = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/goals`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (goalResponse.ok) {
+      const goals = await goalResponse.json();
+      goal.value = goals.find((g) => {
+        const startDate = new Date(g.startDate);
+        const endDate = new Date(g.endDate);
+        const currentDate = new Date(today);
+        return currentDate >= startDate && currentDate <= endDate;
+      })?.maxCigarettesPerDay || null; // Null si aucun objectif trouvé
     }
   } catch (error) {
-    console.error("Erreur lors de l'initialisation du compteur :", error.message);
+    console.error(
+      "Erreur lors de l'initialisation du compteur :",
+      error.message
+    );
   }
 };
 
@@ -54,7 +81,10 @@ const updateDatabase = async (cigarettesSmoked) => {
       throw new Error("Erreur lors de la mise à jour de la base de données.");
     }
   } catch (error) {
-    console.error("Erreur lors de la mise à jour de la base de données :", error.message);
+    console.error(
+      "Erreur lors de la mise à jour de la base de données :",
+      error.message
+    );
   }
 };
 
@@ -71,8 +101,11 @@ const decrement = async () => {
 };
 
 const circleProgress = computed(() => {
+  if (goal.value === null || goal.value <= 0) {
+    return CIRCLE_CIRCUMFERENCE; // Si aucun objectif ou objectif invalide, cercle vide
+  }
   const percentage = Math.min(count.value / goal.value, 1) * 100;
-  return 440 - (440 * percentage) / 100; // 440 est le périmètre du cercle
+  return CIRCLE_CIRCUMFERENCE * (1 - percentage / 100);
 });
 
 onMounted(() => {
@@ -97,26 +130,26 @@ onMounted(() => {
         <div class="circle-container">
           <svg
             class="progress-circle"
-            width="200"
-            height="200"
-            viewBox="0 0 100 100"
+            width="250"
+            height="250"
+            viewBox="0 0 125 125"
           >
             <circle
               class="progress-circle-bg"
-              cx="50"
-              cy="50"
-              r="44"
+              cx="62.5"
+              cy="62.5"
+              r="55"
               fill="none"
               stroke-width="4"
             />
             <circle
               class="progress-circle-fill"
-              cx="50"
-              cy="50"
-              r="44"
+              cx="62.5"
+              cy="62.5"
+              r="55"
               fill="none"
               stroke-width="4"
-              stroke-dasharray="440"
+              :stroke-dasharray="CIRCLE_CIRCUMFERENCE"
               :stroke-dashoffset="circleProgress"
             />
           </svg>
@@ -150,8 +183,8 @@ onMounted(() => {
 
 .circle-container {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
 }
 
 .progress-circle {
