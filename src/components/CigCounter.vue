@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 
 const count = ref(0);
-const goal = ref(null); // Null si aucun objectif n'est défini
+const goal = ref(null);
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 55;
 const token = localStorage.getItem("token");
 
@@ -10,7 +10,6 @@ const initializeCounter = async () => {
   try {
     const today = new Date().toISOString().split("T")[0];
 
-    // Récupérer les données du compteur pour aujourd'hui
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/daily-records?date=${today}`,
       {
@@ -31,7 +30,6 @@ const initializeCounter = async () => {
       );
     }
 
-    // Récupérer l'objectif pour aujourd'hui
     const goalResponse = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/goals`,
       {
@@ -43,12 +41,13 @@ const initializeCounter = async () => {
 
     if (goalResponse.ok) {
       const goals = await goalResponse.json();
-      goal.value = goals.find((g) => {
-        const startDate = new Date(g.startDate);
-        const endDate = new Date(g.endDate);
-        const currentDate = new Date(today);
-        return currentDate >= startDate && currentDate <= endDate;
-      })?.maxCigarettesPerDay || null; // Null si aucun objectif trouvé
+      goal.value =
+        goals.find((g) => {
+          const startDate = new Date(g.startDate);
+          const endDate = new Date(g.endDate);
+          const currentDate = new Date(today);
+          return currentDate >= startDate && currentDate <= endDate;
+        })?.maxCigarettesPerDay || null;
     }
   } catch (error) {
     console.error(
@@ -102,10 +101,19 @@ const decrement = async () => {
 
 const circleProgress = computed(() => {
   if (goal.value === null || goal.value <= 0) {
-    return CIRCLE_CIRCUMFERENCE; // Si aucun objectif ou objectif invalide, cercle vide
+    return CIRCLE_CIRCUMFERENCE;
   }
   const percentage = Math.min(count.value / goal.value, 1) * 100;
   return CIRCLE_CIRCUMFERENCE * (1 - percentage / 100);
+});
+
+const overCircleProgress = computed(() => {
+  if (count.value <= goal.value || goal.value === null || goal.value <= 0) {
+    return CIRCLE_CIRCUMFERENCE;
+  }
+  const extraPercentage =
+    Math.min((count.value - goal.value) / goal.value, 1) * 100;
+  return CIRCLE_CIRCUMFERENCE * (1 - extraPercentage / 100);
 });
 
 onMounted(() => {
@@ -119,13 +127,7 @@ onMounted(() => {
     style="height: 100vh; width: 100vw"
   >
     <v-row class="justify-center">
-      <v-col
-        cols="12"
-        sm="8"
-        md="6"
-        class="d-flex flex-column align-center"
-        style="max-width: 20rem"
-      >
+      <v-col class="d-flex flex-column align-center" style="max-width: 20rem">
         <h1 class="count-title">Compteur</h1>
         <div class="circle-container">
           <svg
@@ -151,6 +153,16 @@ onMounted(() => {
               stroke-width="4"
               :stroke-dasharray="CIRCLE_CIRCUMFERENCE"
               :stroke-dashoffset="circleProgress"
+            />
+            <circle
+              class="progress-circle-over"
+              cx="62.5"
+              cy="62.5"
+              r="55"
+              fill="none"
+              stroke-width="4"
+              :stroke-dasharray="CIRCLE_CIRCUMFERENCE"
+              :stroke-dashoffset="overCircleProgress"
             />
           </svg>
           <div class="circle-value">{{ count }}</div>
@@ -192,12 +204,18 @@ onMounted(() => {
   transform-origin: center;
 }
 
+.progress-circle-over {
+  stroke: #ce0000;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
 .progress-circle-bg {
   stroke: #e0e0e0;
 }
 
 .progress-circle-fill {
-  stroke: blue;
+  stroke: #2196f3;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.3s ease;
 }
@@ -229,12 +247,12 @@ onMounted(() => {
 }
 
 .btn-moins {
-  background-color: red;
+  background-color: #ce0000;
   color: white;
 }
 
 .btn-plus {
-  background-color: blue;
+  background-color: #2196f3;
   color: white;
 }
 </style>
