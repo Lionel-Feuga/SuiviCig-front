@@ -127,13 +127,7 @@ onMounted(() => {
     style="height: 100vh; width: 100vw"
   >
     <v-row class="justify-center">
-      <v-col
-        cols="12"
-        sm="8"
-        md="6"
-        class="d-flex flex-column align-center"
-        style="max-width: 20rem"
-      >
+      <v-col class="d-flex flex-column align-center" style="max-width: 20rem">
         <h1 class="count-title">Compteur</h1>
         <div class="circle-container">
           <svg
@@ -211,7 +205,7 @@ onMounted(() => {
 }
 
 .progress-circle-over {
-  stroke: red;
+  stroke: #ce0000;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.3s ease;
 }
@@ -221,7 +215,7 @@ onMounted(() => {
 }
 
 .progress-circle-fill {
-  stroke: blue;
+  stroke: #2196f3;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.3s ease;
 }
@@ -253,12 +247,12 @@ onMounted(() => {
 }
 
 .btn-moins {
-  background-color: red;
+  background-color: #ce0000;
   color: white;
 }
 
 .btn-plus {
-  background-color: blue;
+  background-color: #2196f3;
   color: white;
 }
 </style>

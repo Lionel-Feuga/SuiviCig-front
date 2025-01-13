@@ -59,7 +59,7 @@ const formatDate = (dateString) => {
 };
 
 const goalTitle = computed(() => {
-  if (!currentGoal.value) return "Aucun Objectif";
+  if (!currentGoal.value) return "Aucun Objectif pour le moment";
 
   const now = new Date();
   const startDate = new Date(currentGoal.value.startDate);
@@ -78,7 +78,7 @@ onMounted(() => {
     style="height: 100vh; width: 100vw"
   >
     <v-row class="justify-center">
-      <v-col cols="12" sm="8" md="6" class="d-flex flex-column align-center">
+      <v-col class="d-flex flex-column align-center">
         <h1 class="goal-title">{{ goalTitle }}</h1>
         <v-alert v-if="error" type="error" class="mt-5">
           {{ error }}
@@ -111,9 +111,10 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <v-alert v-if="!currentGoal && !error" type="info" class="mt-5">
-          Aucun objectif en cours ou à venir.
-        </v-alert>
+        <div class="obj-links d-flex justify-space-around mt-15 w-100">
+          <a href="/Goals">Ajouter un objectif</a>
+          <a href="/AllGoals">Tous les objectifs</a>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -146,8 +147,7 @@ onMounted(() => {
   color: #fe6e1f;
 }
 
-.v-alert {
-  width: 100%;
-  text-align: center;
+.obj-links a {
+  text-decoration: none;
 }
 </style>
