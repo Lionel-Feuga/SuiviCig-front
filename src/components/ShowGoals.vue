@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 
-const goals = ref([]);
 const error = ref("");
 const currentGoal = ref(null);
 
