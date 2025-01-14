@@ -53,13 +53,12 @@ const saveRange = async () => {
     return;
   }
 
-  // Ajouter un jour à la endDate pour inclure le dernier jour sélectionné
   const endDateAdjusted = new Date(range.value.end);
-  endDateAdjusted.setDate(endDateAdjusted.getDate() + 1);
+  endDateAdjusted.setDate(endDateAdjusted.getDate());
 
   const data = {
     startDate: range.value.start,
-    endDate: endDateAdjusted.toISOString().split("T")[0], // Format YYYY-MM-DD
+    endDate: endDateAdjusted.toISOString().split("T")[0], 
     maxCigarettesPerDay: maxCigarettes.value,
   };
 
